@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, Heart, Sparkles, Maximize2, Pause, Play } from 'lucide-react';
+import { getAssetPath } from '../utils/assets';
 
 interface MemoryItem {
   id: string;
@@ -14,7 +15,7 @@ interface MemoryItem {
 const memories: MemoryItem[] = [
   {
     id: 'memory-kiss',
-    image: '/assets/aistudio/WhatsApp_Image_2026-10-20_at_2.39.18_PM_657fb89f.jpeg',
+    image: getAssetPath('/assets/aistudio/WhatsApp_Image_2026-10-20_at_2.39.18_PM_657fb89f.jpeg'),
     title: 'A Forehead Kiss & Infinite Love',
     subtitle: 'Chapter I • Pure Affection',
     caption: 'A tender moment of promise, gratitude, and devotion as we await our precious bundle of joy.',
@@ -22,7 +23,7 @@ const memories: MemoryItem[] = [
   },
   {
     id: 'memory-bump',
-    image: '/assets/aistudio/WhatsApp_Image_2026-10-20_at_2.39.17_PM__1__578c2fab.jpeg',
+    image: getAssetPath('/assets/aistudio/WhatsApp_Image_2026-10-20_at_2.39.17_PM__1__578c2fab.jpeg'),
     title: 'Two Hearts Holding One Miracle',
     subtitle: 'Chapter II • The Miracle Within',
     caption: 'Our hands united around our little angel. Adorned in traditional glass bangles and boundless maternal love.',
@@ -30,7 +31,7 @@ const memories: MemoryItem[] = [
   },
   {
     id: 'memory-gaze',
-    image: '/assets/aistudio/WhatsApp_Image_2026-10-20_at_2.39.17_PM_7635eb39.jpeg',
+    image: getAssetPath('/assets/aistudio/WhatsApp_Image_2026-10-20_at_2.39.17_PM_7635eb39.jpeg'),
     title: 'Shared Smiles & Whispered Dreams',
     subtitle: 'Chapter III • Soulmates',
     caption: 'Catching each other&apos;s eyes and smiling at the wonderful new chapter unfolding before us.',
@@ -38,7 +39,7 @@ const memories: MemoryItem[] = [
   },
   {
     id: 'memory-together',
-    image: '/assets/aistudio/WhatsApp_Image_2026-10-20_at_2.39.16_PM_c0962596.jpeg',
+    image: getAssetPath('/assets/aistudio/WhatsApp_Image_2026-10-20_at_2.39.16_PM_c0962596.jpeg'),
     title: 'Walking Hand in Hand',
     subtitle: 'Chapter IV • Journey Together',
     caption: 'Standing strong together with happy hearts, ready to become the happiest parents in the world.',
@@ -46,7 +47,7 @@ const memories: MemoryItem[] = [
   },
   {
     id: 'memory-poster',
-    image: '/assets/aistudio/WhatsApp_Image_2026-10-20_at_9.35.16_AM_c27c72a4.jpeg',
+    image: getAssetPath('/assets/aistudio/WhatsApp_Image_2026-10-20_at_9.35.16_AM_c27c72a4.jpeg'),
     title: 'Baby Shower Celebration',
     subtitle: 'Chapter V • October 25, 2026',
     caption: 'Dressed in celebration silks, eagerly waiting to receive your warm blessings at Sivakasi Mandapam!',

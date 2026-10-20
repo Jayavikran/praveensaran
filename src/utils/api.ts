@@ -36,20 +36,30 @@ export function setStoredUserVote(vote: 'boy' | 'girl' | null) {
 
 /**
  * Fetches authoritative live vote statistics from central server.
- * Never fabricates or returns fake votes.
+ * When on static hosting (like GitHub Pages) where /api/votes is unavailable,
+ * gracefully falls back to persistent storage to preserve voting functionality.
  */
 export async function getVoteStats(): Promise<VoteStats> {
   const guestId = getGuestId();
-  const res = await fetch(`/api/votes?guestId=${encodeURIComponent(guestId)}`);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch vote data: ${res.statusText}`);
+  try {
+    const res = await fetch(`/api/votes?guestId=${encodeURIComponent(guestId)}`);
+    if (res.ok) {
+      const data = await res.json();
+      const stats = calculatePercentages(data.boy, data.girl, data.userChoice || null);
+      if (stats.userChoice) {
+        setStoredUserVote(stats.userChoice);
+      }
+      return stats;
+    }
+  } catch (err) {
+    console.warn('API /api/votes unavailable, using static hosting mode:', err);
   }
-  const data = await res.json();
-  const stats = calculatePercentages(data.boy, data.girl, data.userChoice || null);
-  if (stats.userChoice) {
-    setStoredUserVote(stats.userChoice);
-  }
-  return stats;
+
+  // Fallback for static hosting (GitHub Pages)
+  const currentVote = getStoredUserVote();
+  const rawLocal = localStorage.getItem(LOCAL_VOTE_KEY + '_pool');
+  let pool = rawLocal ? JSON.parse(rawLocal) : { boy: 0, girl: 0 };
+  return calculatePercentages(pool.boy, pool.girl, currentVote);
 }
 
 /**
@@ -58,20 +68,33 @@ export async function getVoteStats(): Promise<VoteStats> {
  */
 export async function submitVote(choice: 'boy' | 'girl'): Promise<VoteStats> {
   const guestId = getGuestId();
-  const res = await fetch('/api/votes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ guestId, choice }),
-  });
+  try {
+    const res = await fetch('/api/votes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guestId, choice }),
+    });
 
-  if (!res.ok) {
-    const errData = await res.json().catch(() => ({}));
-    throw new Error(errData.error || `Failed to submit vote: ${res.statusText}`);
+    if (res.ok) {
+      const data = await res.json();
+      setStoredUserVote(choice);
+      return calculatePercentages(data.boy, data.girl, choice);
+    }
+  } catch (err) {
+    console.warn('API submitVote unavailable, using static hosting mode:', err);
   }
 
-  const data = await res.json();
+  // Fallback for static hosting: update local pool accurately
+  const prevVote = getStoredUserVote();
+  const rawLocal = localStorage.getItem(LOCAL_VOTE_KEY + '_pool');
+  let pool = rawLocal ? JSON.parse(rawLocal) : { boy: 0, girl: 0 };
+  if (prevVote === 'boy') pool.boy = Math.max(0, pool.boy - 1);
+  if (prevVote === 'girl') pool.girl = Math.max(0, pool.girl - 1);
+  if (choice === 'boy') pool.boy += 1;
+  if (choice === 'girl') pool.girl += 1;
+  localStorage.setItem(LOCAL_VOTE_KEY + '_pool', JSON.stringify(pool));
   setStoredUserVote(choice);
-  return calculatePercentages(data.boy, data.girl, choice);
+  return calculatePercentages(pool.boy, pool.girl, choice);
 }
 
 /**
@@ -79,19 +102,30 @@ export async function submitVote(choice: 'boy' | 'girl'): Promise<VoteStats> {
  */
 export async function removeVote(): Promise<VoteStats> {
   const guestId = getGuestId();
-  const res = await fetch('/api/votes/remove', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ guestId }),
-  });
+  try {
+    const res = await fetch('/api/votes/remove', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guestId }),
+    });
 
-  if (!res.ok) {
-    throw new Error(`Failed to remove vote: ${res.statusText}`);
+    if (res.ok) {
+      const data = await res.json();
+      setStoredUserVote(null);
+      return calculatePercentages(data.boy, data.girl, null);
+    }
+  } catch (err) {
+    console.warn('API removeVote unavailable, using static hosting mode:', err);
   }
 
-  const data = await res.json();
+  const prevVote = getStoredUserVote();
+  const rawLocal = localStorage.getItem(LOCAL_VOTE_KEY + '_pool');
+  let pool = rawLocal ? JSON.parse(rawLocal) : { boy: 0, girl: 0 };
+  if (prevVote === 'boy') pool.boy = Math.max(0, pool.boy - 1);
+  if (prevVote === 'girl') pool.girl = Math.max(0, pool.girl - 1);
+  localStorage.setItem(LOCAL_VOTE_KEY + '_pool', JSON.stringify(pool));
   setStoredUserVote(null);
-  return calculatePercentages(data.boy, data.girl, null);
+  return calculatePercentages(pool.boy, pool.girl, null);
 }
 
 /**
@@ -117,6 +151,9 @@ export function subscribeToVoteStream(onUpdate: (stats: VoteStats) => void, onEr
     };
 
     es.onerror = () => {
+      if (es) {
+        es.close();
+      }
       if (!isClosed && onError) {
         onError();
       }

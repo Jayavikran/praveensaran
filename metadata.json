@@ -1,8 +1,1 @@
-{
-  "name": "Praveen & Saran - Baby Shower Invitation",
-  "description": "Interactive animated digital baby shower invitation for Praveen & Saran featuring a magical entrance, rocking cradle animation, baby gender prediction poll, live countdown, calendar invite, and event details.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}
+{"name":"Praveen \u0026 Saran - Baby Shower Invitation","description":"Interactive animated digital baby shower invitation for Praveen \u0026 Saran featuring a magical entrance, rocking cradle animation, baby gender prediction poll, live countdown, calendar invite, and event details.","requestFramePermissions":[],"majorCapabilities":["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, MapPin, Clock, Heart, Sparkles, Maximize2, Share2, CalendarPlus, Check } from 'lucide-react';
 import { downloadCalendarInvite, getGoogleCalendarUrl } from '../utils/calendar';
+import { getAssetPath } from '../utils/assets';
 
 interface InvitationCardProps {
   onOpenShare: () => void;
@@ -10,7 +11,7 @@ export const InvitationCard: React.FC<InvitationCardProps> = ({ onOpenShare }) =
   const [isPhotoZoomed, setIsPhotoZoomed] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const invitationImagePath = '/assets/aistudio/WhatsApp_Image_2026-10-20_at_9.35.16_AM_c27c72a4.jpeg';
+  const invitationImagePath = getAssetPath('/assets/aistudio/WhatsApp_Image_2026-10-20_at_9.35.16_AM_c27c72a4.jpeg');
 
   const handleSaveDate = () => {
     downloadCalendarInvite();
